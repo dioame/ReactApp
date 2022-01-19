@@ -16,11 +16,10 @@ app.use(express.urlencoded({
 // DB CONFIG
 const db = require("./config/keys").mongoURI;
 
-// CONNECT TO MONGODB
-// mongoose
-// .connect(db)
-// .then(() => console.log("MONGODB Connected."))
-// .catch( err => console.log("ERROR"));
+mongoose
+.connect(db)
+.then(() => console.log("MONGODB Connected."))
+.catch( err => console.log("ERROR"));
 
 
 // USE ROUTES
