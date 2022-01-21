@@ -38,8 +38,45 @@ router.post("/", async(req,res) => {
 
 });
 
+router.put("/", async(req,res) => {
+    const id = req.body.id;
+    const base64Img = req.body.img;
+    const name = req.body.name;
+    const price = req.body.price;
+  
+    try{
+        const uploadResponse = await cloudinary.uploader.upload(base64Img,{
+            upload_preset: 'ml_default'
+        });
+        if(uploadResponse){
+            const img_id = uploadResponse.public_id;
+            const updateProduct = Product.findOneAndUpdate(
+                { _id: id },
+                {
+                  $set: {
+                    name: name,
+                    price: price,
+                    img: img_id
+                  }
+                },
+                {
+                  upsert: true
+                }
+              ).then(item => res.json(item));
+        }
+        
+    }catch(error){
+        console.error(error);
+        res.status(500).json({err:"Something Went Wrong."});
+        console.log("Something Went Wrong.");
+    }
+
+});
+
 router.delete("/:id", (req,res) => {
-    console.log('OK')
+    Product.findById(req.params.id)
+      .then(item => item.remove().then(()=>res.json({"success":true})))
+      .catch(err => res.status(404).json({"success":false}));
 })
 
 

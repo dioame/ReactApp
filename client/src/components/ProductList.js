@@ -8,11 +8,23 @@ import IconButton from '@mui/material/IconButton';
 import InfoIcon from '@material-ui/icons/Info';
 import {Image} from 'cloudinary-react';
 import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
 
 import Drawer from '@mui/material/Drawer';
 import TextField from '@mui/material/TextField';
 
-import CurrencyInput from 'react-currency-masked-input';
+
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import Box from '@material-ui/core/Box';
+
+
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -56,6 +68,14 @@ export default () => {
 
   const [toggleDrawer, setToggleDrawer] = useState(false);
 
+  const [dataToUpdate, setDataToUpdate] = useState('');
+
+  const [open, setOpen] = useState(false);
+  const [isDeleteID, setIsDeleteID] = useState(null);
+  const [isUpdateID, setIsUpdateID] = useState(null);
+
+  const [methodName, setMethodName] = useState("Add");
+  const [loading, setLoading] = React.useState(false);
   
 
   const drawerOpen = (status) => (event) => {
@@ -90,21 +110,43 @@ const HandleSubmitFile = (e) =>{
     if(!previewSource) return;
     UploadImage(previewSource);
     
+    
 }
 
 const UploadImage = async(base64EncodedImage)=>{
+
+
+  if(isUpdateID){
     try{
-        const res = await fetch('/api/products',{
+      const res = await fetch('/api/products',{
+            method: "PUT",
+            body: JSON.stringify({id:isUpdateID,img:base64EncodedImage,name:productName,price:productPrice}),
+            headers:{'Content-type':'application/json'}
+        })
+        const data = await res.json();
+        console.log(data);
+        setToggleDrawer(!toggleDrawer);
+        setLoading(false);
+    }catch(error){
+        console.error(error);
+    }
+
+  }else{
+    try{
+      const res = await fetch('/api/products',{
             method: "POST",
             body: JSON.stringify({img:base64EncodedImage,name:productName,price:productPrice}),
             headers:{'Content-type':'application/json'}
         })
         const data = await res.json();
+        console.log(data);
         setProductList([data,...productList]);
         setToggleDrawer(!toggleDrawer);
     }catch(error){
         console.error(error);
     }
+  }
+   
 }
 
 
@@ -112,16 +154,57 @@ const UploadImage = async(base64EncodedImage)=>{
     try{
         const res = await fetch('/api/products');
         const data = await res.json();
-        console.log(data);
         setProductList(data);
     }catch(error){
         console.error(error);
     }
   };
 
+
+  const handleDeleteData = (id) => {
+    setOpen(true);
+    setIsDeleteID(id);
+  }
+
+  const handleInsertData = () => {
+    
+   
+    setToggleDrawer(!toggleDrawer);
+    setMethodName("Add");
+    setProductName("");
+    setProductPrice("");
+    setPreviewSource("");
+   
+  }
+
+  const handleUpdateData = (item) => {
+    
+    setIsUpdateID(item._id);
+    setToggleDrawer(!toggleDrawer);
+    setMethodName("Update");
+    setProductName(item.name);
+    setProductPrice(item.price);
+   
+  }
+
   useEffect(()=>{
     getList();
-  },[]);
+  },[handleDeleteData]);
+
+  const  handleConfirm = async() => {
+    setOpen(false);
+    try{
+      const res = await fetch('/api/products/'+isDeleteID,{method: "DELETE"});
+      const data = await res.json();
+      console.log(data);
+    }catch(error){
+        console.error(error);
+    }
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
 
   return (
@@ -131,9 +214,9 @@ const UploadImage = async(base64EncodedImage)=>{
                     variant="contained"
                     component="label"
                     color="primary"
-                    onClick={drawerOpen(toggleDrawer)}
+                    onClick={handleInsertData}
                     >
-                    Add Product
+                   Add Product
                 </Button>
 
      
@@ -143,8 +226,14 @@ const UploadImage = async(base64EncodedImage)=>{
           <ListSubheader component="div">List of Items</ListSubheader>
         </ImageListItem>
         {productList.map((item,index) => (
-          <ImageListItem key={item.img} cols={item.cols || 1}>
+           <Box  key={index}>
+          <ImageListItem key={item.img} cols={item.cols || 1} style={{margin: '20px'}}>
             
+            <ButtonGroup variant="contained" aria-label="outlined primary button group">
+              <Button variant="outlined" size="small" onClick={()=>{handleUpdateData(item)}}> <EditIcon /></Button>
+              <Button variant="outlined" size="small" onClick={()=>{handleDeleteData(item._id)}}><DeleteIcon /></Button>
+            </ButtonGroup>
+
             <Image 
               key={index}
               cloudName="dwpefzbuc"
@@ -158,11 +247,13 @@ const UploadImage = async(base64EncodedImage)=>{
               subtitle={<span>Price: {item.price}</span>}
               actionIcon={
                 <IconButton aria-label={`info about ${item.name}`} className={classes.icon}>
-                  <InfoIcon />
+                    <InfoIcon />
                 </IconButton>
               }
             />
           </ImageListItem>
+         
+          </Box>
         ))}
       </ImageList>
       
@@ -174,10 +265,10 @@ const UploadImage = async(base64EncodedImage)=>{
             >
                 <form onSubmit={HandleSubmitFile}>
 
-                <h2 style={{fontFamily:'verdana'}}>Add Product</h2>
+                <h2 style={{fontFamily:'verdana'}}>{methodName} Product</h2>
 
-                <TextField id="outlined-basic" label="Product Name" variant="outlined" onChange={HandleInputProductName}  style={{marginBottom:'5px'}}/>
-                <TextField id="outlined-basic" label="Price" variant="outlined"  onChange={HandleInputProductPrice} style={{marginBottom:'5px'}}/>
+                <TextField id="outlined-basic" label="Product Name" value={productName} variant="outlined" onChange={HandleInputProductName}  style={{marginBottom:'5px'}}/>
+                <TextField id="outlined-basic" label="Price" value={productPrice} variant="outlined"  onChange={HandleInputProductPrice} style={{marginBottom:'5px'}}/>
 
                 <Button
                     variant="contained"
@@ -194,13 +285,7 @@ const UploadImage = async(base64EncodedImage)=>{
                     />
                 </Button>
                 <br/>
-
-
                 
-                
-                 
-            
-
             <div className={classes.imageContainer}>
             {previewSource && (
                      <img src={previewSource} alt="chosen" style={{height:'300px',maxWidth:'100%'}} /> 
@@ -209,24 +294,60 @@ const UploadImage = async(base64EncodedImage)=>{
             </div>
 
             {previewSource && ( 
-                <Button
-                variant="contained"
-                component="label"
-                color="success"
-                >
-                Submit
-                <input
-                    type="submit"
-                    name="submit"
-                    hidden
-                />
-              </Button>
+                
+
+            <Box sx={{ display: 'flex' }}>
+            
+            <Button
+                            variant="contained"
+                            component="label"
+                            color="success"
+                            >
+                          Save
+                            <input
+                                type="submit"
+                                name="submit"
+                                onClick={()=>{setLoading(true)}}
+                                hidden
+                            />
+                          </Button>
+
+                          {loading && (
+                              <CircularProgress onChange="" />
+                            )}
+
+                          
+            </Box>
+
               )}
               </form>
 
 
             </div>
         </Drawer>
+
+
+        <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+          <DialogTitle id="alert-dialog-title">
+            {"Deleting Item."}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Are you sure?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleConfirm}>Confirm</Button>
+            <Button onClick={handleClose}>
+              Cancel
+            </Button>
+          </DialogActions>
+        </Dialog>
     </div>
   );
 }
