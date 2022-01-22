@@ -5,9 +5,9 @@ import Home from './components/Home';
 import Contact from './components/Contact';
 import About from './components/About';
 import NotFound from './components/NotFound';
-import MyNavigation from './components/MyNavigation';
+import AppNavigation from './components/AppNavigation';
 
-export default () => {
+export default function() {
 
   const appName = "Record System";
   
@@ -15,7 +15,7 @@ export default () => {
     <div>
      
     <Router>
-      <MyNavigation></MyNavigation>
+      <AppNavigation></AppNavigation>
       <Routes>
         <Route exact path="/" element={<Home/>}/>
         <Route exact path="/contact" element={<Contact/>}/>

@@ -28,7 +28,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'space-around',
     overflow: 'hidden',
@@ -56,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default () => {
+export default function() {
   const classes = useStyles();
   
   const [productName,setProductName] = useState('');
@@ -114,8 +113,6 @@ const HandleSubmitFile = (e) =>{
 }
 
 const UploadImage = async(base64EncodedImage)=>{
-
-
   if(isUpdateID){
     try{
       const res = await fetch('/api/products',{
@@ -123,10 +120,7 @@ const UploadImage = async(base64EncodedImage)=>{
             body: JSON.stringify({id:isUpdateID,img:base64EncodedImage,name:productName,price:productPrice}),
             headers:{'Content-type':'application/json'}
         })
-        const data = await res.json();
-        console.log(data);
-        setToggleDrawer(!toggleDrawer);
-        setLoading(false);
+        console.log(res);
     }catch(error){
         console.error(error);
     }
@@ -138,9 +132,7 @@ const UploadImage = async(base64EncodedImage)=>{
             body: JSON.stringify({img:base64EncodedImage,name:productName,price:productPrice}),
             headers:{'Content-type':'application/json'}
         })
-        const data = await res.json();
-        console.log(data);
-        setProductList([data,...productList]);
+        console.log(res);
         setToggleDrawer(!toggleDrawer);
     }catch(error){
         console.error(error);
@@ -162,6 +154,7 @@ const UploadImage = async(base64EncodedImage)=>{
 
 
   const handleDeleteData = (id) => {
+    console.log(id);
     setOpen(true);
     setIsDeleteID(id);
   }
@@ -179,7 +172,7 @@ const UploadImage = async(base64EncodedImage)=>{
 
   const handleUpdateData = (item) => {
     
-    setIsUpdateID(item._id);
+    setIsUpdateID(item.id);
     setToggleDrawer(!toggleDrawer);
     setMethodName("Update");
     setProductName(item.name);
@@ -192,13 +185,13 @@ const UploadImage = async(base64EncodedImage)=>{
   },[handleDeleteData]);
 
   const  handleConfirm = async() => {
+    console.log(isDeleteID);
     setOpen(false);
     try{
       const res = await fetch('/api/products/'+isDeleteID,{method: "DELETE"});
-      const data = await res.json();
-      console.log(data);
+      console.log(res);
     }catch(error){
-        console.error(error);
+      console.log(error);
     }
   };
 
@@ -221,8 +214,8 @@ const UploadImage = async(base64EncodedImage)=>{
 
      
 
-      <ImageList rowHeight={300} className={classes.imageList} cols={4}>
-        <ImageListItem key="Subheader" cols={4} style={{ height: 'auto' }}>
+      <ImageList rowHeight={300} className={classes.imageList} cols={6}>
+        <ImageListItem key="Subheader" cols={6} style={{ height: 'auto' }}>
           <ListSubheader component="div">List of Items</ListSubheader>
         </ImageListItem>
         {productList.map((item,index) => (
@@ -231,7 +224,7 @@ const UploadImage = async(base64EncodedImage)=>{
             
             <ButtonGroup variant="contained" aria-label="outlined primary button group">
               <Button variant="outlined" size="small" onClick={()=>{handleUpdateData(item)}}> <EditIcon /></Button>
-              <Button variant="outlined" size="small" onClick={()=>{handleDeleteData(item._id)}}><DeleteIcon /></Button>
+              <Button variant="outlined" size="small" onClick={()=>{handleDeleteData(item.id)}}><DeleteIcon /></Button>
             </ButtonGroup>
 
             <Image 
@@ -258,7 +251,7 @@ const UploadImage = async(base64EncodedImage)=>{
       </ImageList>
       
 
-      <Drawer anchor="right" open={toggleDrawer} onClose={drawerOpen(toggleDrawer)} >
+      <Drawer anchor="top" open={toggleDrawer} onClose={drawerOpen(toggleDrawer)} >
             <div
                 className={classes.drawer}
                 role="presentation"
@@ -313,7 +306,7 @@ const UploadImage = async(base64EncodedImage)=>{
                           </Button>
 
                           {loading && (
-                              <CircularProgress onChange="" />
+                              <CircularProgress />
                             )}
 
                           

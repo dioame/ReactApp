@@ -1,14 +1,23 @@
 const express = require("express");
 const router = express.Router();
 const {cloudinary} = require('../../utils/cloudinary');
-// ITEM MODEL
-const Item = require("../../models/Product");
+
+const mysql = require("mysql");
+const db = mysql.createPool({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "records"
+});
+
 
 router.get("/", (req,res) => {
-    Product.find()
-    .sort({'_id': -1})
-    .then(items => res.json(items))
+    const sql = "SELECT * FROM items";
+    db.query(sql, (err,result) => {
+        res.send(result);
+    });
 });
+
 
 router.post("/", async(req,res) => {
     const base64Img = req.body.img;
@@ -21,13 +30,10 @@ router.post("/", async(req,res) => {
         });
         if(uploadResponse){
             const img_id = uploadResponse.public_id;
-            const newProduct = new Product({
-                name: name,
-                price: price,
-                img:img_id
+            const sql = "INSERT INTO items(name,price,img) VALUES ('"+name+"','"+price+"','"+img_id+"')";
+            db.query(sql, (err,result) => {
+                res.send(result);
             });
-            newProduct.save().then(item => res.json(item));
-            console.log("Uploaded.");
         }
         
     }catch(error){
@@ -35,8 +41,8 @@ router.post("/", async(req,res) => {
         res.status(500).json({err:"Something Went Wrong."});
         console.log("Something Went Wrong.");
     }
-
 });
+
 
 router.put("/", async(req,res) => {
     const id = req.body.id;
@@ -50,19 +56,10 @@ router.put("/", async(req,res) => {
         });
         if(uploadResponse){
             const img_id = uploadResponse.public_id;
-            const updateProduct = Product.findOneAndUpdate(
-                { _id: id },
-                {
-                  $set: {
-                    name: name,
-                    price: price,
-                    img: img_id
-                  }
-                },
-                {
-                  upsert: true
-                }
-              ).then(item => res.json(item));
+            const sql = "UPDATE items(name,price,img) set name='"+name+"',price='"+price+"',img='"+img_id+"' WHERE id = "+id+")";
+            db.query(sql, (err,result) => {
+                res.send(sql);
+            });
         }
         
     }catch(error){
@@ -74,9 +71,10 @@ router.put("/", async(req,res) => {
 });
 
 router.delete("/:id", (req,res) => {
-    Product.findById(req.params.id)
-      .then(item => item.remove().then(()=>res.json({"success":true})))
-      .catch(err => res.status(404).json({"success":false}));
+    const sql = "DELETE FROM items WHERE id = "+req.params.id+")";
+    db.query(sql, (err,result) => {
+        res.send(result);
+    });
 })
 
 

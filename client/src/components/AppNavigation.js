@@ -1,94 +1,96 @@
-import * as React from 'react';
+import React,{useState} from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
+import MenuIcon from '@material-ui/icons/Menu';
+
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
+import InboxIcon from '@material-ui/icons/MoveToInbox';
+import MailIcon from '@material-ui/icons/Mail';
+import HomeIcon from '@material-ui/icons/Home';
 
-export default function AppNavigation(props) {
-  const [state, setState] = React.useState({
-    left: false,
-  });
 
-  const toggleDrawer = (anchor, open) => (event) => {
+import { Link } from 'react-router-dom';
+const useStyles = makeStyles((theme) => ({
+  root: {
+    flexGrow: 1,
+  },
+  menuButton: {
+    marginRight: theme.spacing(2),
+  },
+  title: {
+    flexGrow: 1,
+  },
+  list: {
+    width: 300,
+  },
+}));
+
+export default function() {
+  const classes = useStyles();
+
+  const [toggleDrawer, setToggleDrawer] = useState(false);
+
+  const drawerOpen = (status) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
     }
-    setState({ ...state, [anchor]: open });
+    setToggleDrawer(!status);
   };
 
-  //DRAWER LIST
-  const list = (anchor) => (
-    <Box
-      sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 250 }}
-      role="presentation"
-      onClick={toggleDrawer(anchor, false)}
-      onKeyDown={toggleDrawer(anchor, false)}
-    >
-      <List>
-        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>
-              {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-            </ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-      <List>
-        {['All mail', 'Trash', 'Spam'].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>
-              {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-            </ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
-    </Box>
-  );
-
   return (
-    <div>
-        <Box sx={{ flexGrow: 1 }}>
-          <AppBar position="static">
-            <Toolbar>
-              <IconButton
-                size="large"
-                edge="start"
-                color="inherit"
-                aria-label="menu"
-                sx={{ mr: 2 }}
-                onClick={toggleDrawer("left", true)}
-              >
-                <MenuIcon />
-              </IconButton>
-              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                {props.title}
-              </Typography>
-              <Button color="inherit">Login</Button>
-            </Toolbar>
-          </AppBar>
-        </Box>
-        
-        <Drawer
-            anchor="left"
-            open={state["left"]}
-            onClose={toggleDrawer("left", false)}
-          >
-            {list("left")}
-          </Drawer>
+    <div className={classes.root}>
+      <AppBar position="static" style={{backgroundColor: 'black'}}>
+        <Toolbar>
+          <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu" onClick={drawerOpen(toggleDrawer)}>
+     
+          </IconButton>
+          <Typography variant="h6" className={classes.title}>
+                L D S
+          </Typography>
+
+          <Button color="inherit" component={Link} to="/">Home</Button>
+          <Button color="inherit" component={Link} to="/about">About</Button>
+          <Button color="inherit" component={Link} to="/contact">Contact</Button>
+      
+         
+
+        </Toolbar>
+      </AppBar>
+
+        <Drawer anchor="left" open={toggleDrawer} onClose={drawerOpen(toggleDrawer)}>
+            <div
+                className={classes.list}
+                role="presentation"
+                onClick={drawerOpen(toggleDrawer)}
+                onKeyDown={drawerOpen(toggleDrawer)}
+            >
+                <Divider />
+                <List>
+                    <ListItem button component={Link} to="/">
+                        <ListItemIcon> <HomeIcon /> </ListItemIcon> 
+                        <ListItemText primary="Home" />
+                    </ListItem >
+                    <ListItem button component={Link} to="/about">
+                        <ListItemIcon> <InboxIcon /> </ListItemIcon> 
+                        <ListItemText primary="About" />
+                    </ListItem >
+                    <ListItem button component={Link} to="/contact">
+                        <ListItemIcon> <MailIcon  /> </ListItemIcon> 
+                        <ListItemText primary="Contact" />
+                    </ListItem>
+                </List>
+                <Divider />
+            </div>
+        </Drawer>
     </div>
   );
 }
