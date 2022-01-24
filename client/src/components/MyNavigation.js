@@ -48,13 +48,13 @@ export default () => {
 
   return (
     <div className={classes.root}>
-      <AppBar position="static">
+      <AppBar position="static" style={{backgroundColor:'green'}}>
         <Toolbar>
           <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu" onClick={drawerOpen(toggleDrawer)}>
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" className={classes.title}>
-                L D S
+                Kim's Shopping System
           </Typography>
           <Button color="inherit">Login</Button>
         </Toolbar>

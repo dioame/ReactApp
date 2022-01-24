@@ -5,6 +5,8 @@ import ProductList from './ProductList';
 const useStyles = makeStyles(() => ({
     textStyle: {
       fontFamily: 'verdana',
+      textAlign: 'center',
+      borderBottom: '2px solid gray;'
     },
 }));
 

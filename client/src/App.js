@@ -1,5 +1,5 @@
 import './App.css';
-import React from 'react';
+import React,{useEffect} from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import Home from './components/Home';
 import Contact from './components/Contact';
@@ -10,7 +10,9 @@ import MyNavigation from './components/MyNavigation';
 export default () => {
 
   const appName = "Record System";
-  
+  useEffect(() => {
+    document.title = appName;
+ }, []);
   return (
     <div>
      

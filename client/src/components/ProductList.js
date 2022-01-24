@@ -28,7 +28,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'space-around',
     overflow: 'hidden',
@@ -231,7 +230,7 @@ const UploadImage = async(base64EncodedImage)=>{
             
             <ButtonGroup variant="contained" aria-label="outlined primary button group">
               <Button variant="outlined" size="small" onClick={()=>{handleUpdateData(item)}}> <EditIcon /></Button>
-              <Button variant="outlined" size="small" onClick={()=>{handleDeleteData(item._id)}}><DeleteIcon /></Button>
+              
             </ButtonGroup>
 
             <Image 
@@ -247,7 +246,7 @@ const UploadImage = async(base64EncodedImage)=>{
               subtitle={<span>Price: {item.price}</span>}
               actionIcon={
                 <IconButton aria-label={`info about ${item.name}`} className={classes.icon}>
-                    <InfoIcon />
+                    <Button variant="outlined" size="small" onClick={()=>{handleDeleteData(item._id)}}><DeleteIcon /></Button>
                 </IconButton>
               }
             />
@@ -258,7 +257,7 @@ const UploadImage = async(base64EncodedImage)=>{
       </ImageList>
       
 
-      <Drawer anchor="right" open={toggleDrawer} onClose={drawerOpen(toggleDrawer)} >
+      <Drawer anchor="left" open={toggleDrawer} onClose={drawerOpen(toggleDrawer)} >
             <div
                 className={classes.drawer}
                 role="presentation"
@@ -307,14 +306,10 @@ const UploadImage = async(base64EncodedImage)=>{
                             <input
                                 type="submit"
                                 name="submit"
-                                onClick={()=>{setLoading(true)}}
                                 hidden
                             />
                           </Button>
 
-                          {loading && (
-                              <CircularProgress onChange="" />
-                            )}
 
                           
             </Box>
